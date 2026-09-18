@@ -30,6 +30,14 @@ For local organisations and community groups, we want putting a session online t
 
 Hosts need a simple place to review requests, keep volunteers informed and share the organising with their team. The aim is to spend less time on admin and more time doing the work people came to help with.
 
+## Early screens
+
+A first look at browsing and hosting. All people, organisations and opportunities shown here are fictional demo data.
+
+| Find something to do                                                                               | Welcome volunteers                                                                                 |
+| -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| ![Opportunity cards showing activities, dates and available places](docs/assets/opportunities.png) | ![Host dashboard showing volunteer requests and approval controls](docs/assets/host-dashboard.png) |
+
 ## Start small, learn from real sessions
 
 We have an early working version. The next step is a small pilot with five to ten known hosts and a group of volunteers, starting in East London.
