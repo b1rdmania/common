@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Common. Get out. Do some good.</title>
+  <desc id="desc">An open-source home for local volunteering. Find a session, bring a friend, lend a hand.</desc>
+  <rect width="1200" height="440" rx="24" fill="#F7F8F2"/>
+  <rect x="52" y="44" width="40" height="40" rx="12" fill="#3548DC"/>
+  <path d="M80 56a13 13 0 1 0 0 16" stroke="white" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="83" cy="54" r="4" fill="#D7ECAC"/>
+  <text x="106" y="75" fill="#1B241D" font-family="Arial, sans-serif" font-size="29" font-weight="700">Common</text>
+  <text x="54" y="182" fill="#1B241D" font-family="Arial, sans-serif" font-size="69" font-weight="700" letter-spacing="-3">Get out.</text>
+  <text x="54" y="259" fill="#1B241D" font-family="Arial, sans-serif" font-size="69" font-weight="700" letter-spacing="-3">Do some good.</text>
+  <text x="57" y="315" fill="#566052" font-family="Arial, sans-serif" font-size="21">Find a session. Bring a friend. Lend a hand.</text>
+  <rect x="56" y="357" width="274" height="34" rx="17" fill="#E8EDD9"/>
+  <text x="73" y="380" fill="#394936" font-family="Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="1">OPEN SOURCE · LOCAL BY NATURE</text>
+  <g transform="translate(787 66) rotate(6 147 157)">
+    <rect width="286" height="303" rx="18" fill="#E3E9F4" stroke="#CDD7E8"/>
+    <text x="26" y="43" fill="#465C7B" font-family="Arial, sans-serif" font-size="15">A FEW MORE HANDS</text>
+    <path d="M95 107h90M95 126h64" stroke="#778BA9" stroke-width="6" stroke-linecap="round"/>
+    <text x="26" y="232" fill="#26394F" font-family="Arial, sans-serif" font-size="21" font-weight="700">Something good, together.</text>
+  </g>
+  <g transform="translate(699 125) rotate(-6 147 135)">
+    <rect width="290" height="264" rx="18" fill="white" stroke="#DCE2D3"/>
+    <path d="M18 0h254a18 18 0 0 1 18 18v138H0V18A18 18 0 0 1 18 0Z" fill="#E2EBD4"/>
+    <text x="24" y="36" fill="#4D6140" font-family="Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1">OUTDOORS</text>
+    <text x="24" y="77" fill="#4D6140" font-family="Arial, sans-serif" font-size="15">Saturday morning</text>
+    <text x="24" y="121" fill="#32432A" font-family="Arial, sans-serif" font-size="35" font-weight="700">A little fresh air.</text>
+    <text x="24" y="195" fill="#1B241D" font-family="Arial, sans-serif" font-size="19" font-weight="700">Give the garden a Saturday.</text>
+    <text x="24" y="231" fill="#64705B" font-family="Arial, sans-serif" font-size="14">Good company. Useful work.</text>
+  </g>
+</svg>
