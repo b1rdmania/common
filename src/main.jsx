@@ -50,6 +50,7 @@ import { createAuthClient } from 'better-auth/react';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/dm-sans';
 import './styles.css';
+import { demoActivities, demoHosts } from './demo-content';
 
 const authClient = createAuthClient();
 const Context = createContext(null);
@@ -87,6 +88,87 @@ const CategoryIcon = ({ category, ...props }) => {
           : HandHeart;
   return <Icon {...props} />;
 };
+function ActivityArtwork({ session, detail = false }) {
+  const { config } = useApp();
+  const photo = config.demo ? demoActivities[session.title] : null;
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [photo?.src]);
+  const hasPhoto = photo && !failed;
+  return (
+    <>
+      <div
+        className={`${detail ? 'detail-banner' : 'card-art'} ${categoryStyle(session.category)} ${hasPhoto ? 'photo-art' : ''}`}
+      >
+        {hasPhoto && (
+          <img
+            className="activity-photo"
+            src={photo.src}
+            alt={photo.alt}
+            style={{ objectPosition: photo.position || 'center' }}
+            loading={detail ? 'eager' : 'lazy'}
+            decoding="async"
+            onError={() => setFailed(true)}
+          />
+        )}
+        <span className="card-category">
+          <CategoryIcon category={session.category} size={15} />
+          {session.category}
+        </span>
+        {hasPhoto && <span className="stock-label">Stock photo</span>}
+        {detail ? (
+          <span className="photo-area">{session.area}</span>
+        ) : (
+          <div className="card-date">
+            <span>{date(session.starts_at, { weekday: 'long' })}</span>
+            <strong>
+              {date(session.starts_at, { day: '2-digit' })}
+              <span>{date(session.starts_at, { month: 'short' })}</span>
+            </strong>
+          </div>
+        )}
+        {!hasPhoto && (
+          <CategoryIcon
+            category={session.category}
+            className="activity-symbol"
+            strokeWidth={1.3}
+          />
+        )}
+        {!hasPhoto && !detail && (
+          <span className="art-caption">A little time, well spent.</span>
+        )}
+      </div>
+      {detail && hasPhoto && (
+        <p className="photo-credit">
+          Illustrative photo ·{' '}
+          <a href={photo.source} target="_blank" rel="noopener noreferrer">
+            {photo.photographer} / Pexels
+          </a>
+        </p>
+      )}
+    </>
+  );
+}
+function DemoHost({ organisation }) {
+  const { config } = useApp();
+  const host = config.demo ? demoHosts[organisation] : null;
+  if (!host) return null;
+  return (
+    <section className="demo-host" aria-label="Your host">
+      <span className={`host-initials ${host.colour}`} aria-hidden="true">
+        {host.name
+          .split(' ')
+          .map((n) => n[0])
+          .join('')}
+      </span>
+      <div>
+        <span className="eyebrow">YOUR HOST · FICTIONAL DEMO</span>
+        <h2>{host.name}</h2>
+        <span className="host-role">{host.role}</span>
+        <p>{host.intro}</p>
+      </div>
+    </section>
+  );
+}
 async function api(path, options = {}) {
   const response = await fetch(`/api${path}`, {
     ...options,
@@ -571,25 +653,7 @@ function Explore() {
         <div className="opportunity-grid">
           {filtered.map((s, index) => (
             <article className="opportunity-card" key={s.id}>
-              <div className={`card-art ${categoryStyle(s.category)}`}>
-                <span className="card-category">
-                  <CategoryIcon category={s.category} size={15} />
-                  {s.category}
-                </span>
-                <div className="card-date">
-                  <span>{date(s.starts_at, { weekday: 'long' })}</span>
-                  <strong>
-                    {date(s.starts_at, { day: '2-digit' })}
-                    <span>{date(s.starts_at, { month: 'short' })}</span>
-                  </strong>
-                </div>
-                <CategoryIcon
-                  category={s.category}
-                  className="activity-symbol"
-                  strokeWidth={1.3}
-                />
-                <span className="art-caption">A little time, well spent.</span>
-              </div>
+              <ActivityArtwork session={s} />
               <div className="card-body">
                 <div className="card-meta">
                   <span>
@@ -703,14 +767,7 @@ function Detail() {
       </Link>
       <div className="detail-layout">
         <div>
-          <div className={`detail-banner ${categoryStyle(s.category)}`}>
-            <span className="card-category">
-              <CategoryIcon category={s.category} size={17} />
-              {s.category}
-            </span>
-            <CategoryIcon category={s.category} size={90} strokeWidth={1.2} />
-            <span>{s.area}</span>
-          </div>
+          <ActivityArtwork session={s} detail />
           <div className="eyebrow detail-eyebrow">
             WITH {s.organisation_name.toUpperCase()}
           </div>
@@ -729,6 +786,7 @@ function Detail() {
               Up to {s.capacity} people
             </span>
           </div>
+          <DemoHost organisation={s.organisation_name} />
           <section className="prose-section">
             <h2>What you’ll be doing</h2>
             {s.description

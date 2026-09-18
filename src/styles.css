@@ -762,7 +762,7 @@ footer {
   margin-left: auto;
   margin-top: 25px;
 }
-.detail-banner > span:last-child {
+.detail-banner > .photo-area {
   position: absolute;
   bottom: 25px;
   left: 26px;
@@ -2020,5 +2020,133 @@ dialog::backdrop {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Demo photography keeps the existing category artwork as a fallback. */
+.photo-art {
+  isolation: isolate;
+  color: white;
+  overflow: hidden;
+}
+.activity-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.photo-art::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #10181020 20%,
+    #10181012 38%,
+    #101810b8 100%
+  );
+  z-index: -1;
+}
+.photo-art .card-category {
+  display: inline-flex;
+  background: #fffffff0;
+  color: #26342a;
+  padding: 6px 9px;
+  border-radius: 7px;
+  font-size: 0.68rem;
+}
+.photo-art .card-date {
+  position: absolute;
+  bottom: 17px;
+  left: 21px;
+  margin: 0;
+  text-shadow: 0 1px 8px #0006;
+}
+.photo-art .card-date strong {
+  font-size: 2.6rem;
+}
+.stock-label {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  font-size: 0.56rem;
+  line-height: 1.2;
+  padding: 4px 6px;
+  border-radius: 4px;
+  color: white;
+  background: #182319b0;
+}
+.detail-banner.photo-art {
+  min-height: 310px;
+}
+.detail-banner.photo-art .stock-label {
+  bottom: auto;
+  left: auto;
+  font-family: inherit;
+  font-size: 0.6rem;
+  letter-spacing: normal;
+}
+.photo-credit {
+  text-align: right;
+  font-size: 0.65rem;
+  color: #667064;
+  margin: 8px 0 0;
+}
+.photo-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.demo-host {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 22px;
+  background: #f0f3e9;
+  border: 1px solid #e3e8da;
+  border-radius: 13px;
+}
+.host-initials {
+  display: grid;
+  place-items: center;
+  flex: 0 0 52px;
+  height: 52px;
+  border-radius: 50%;
+  font-weight: 650;
+  font-size: 1.05rem;
+}
+.demo-host .eyebrow {
+  font-size: 0.59rem;
+}
+.demo-host h2 {
+  font-size: 1.15rem;
+  margin: 7px 0 3px;
+}
+.host-role {
+  font-size: 0.76rem;
+  color: #64705b;
+}
+.demo-host p {
+  font-size: 0.87rem;
+  line-height: 1.65;
+  margin: 12px 0 0;
+}
+@media (max-width: 600px) {
+  .opportunity-grid {
+    grid-template-columns: 1fr;
+  }
+  .detail-banner.photo-art {
+    min-height: 250px;
+  }
+  .demo-host {
+    padding: 18px 15px;
+    gap: 12px;
+  }
+  .host-initials {
+    flex-basis: 42px;
+    height: 42px;
   }
 }
