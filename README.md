@@ -6,110 +6,43 @@
   <strong>A few hours. A few good people. Something useful to do together.</strong>
 </p>
 
-<p align="center">
-  <a href="https://github.com/b1rdmania/common/actions/workflows/ci.yml"><img src="https://github.com/b1rdmania/common/actions/workflows/ci.yml/badge.svg" alt="Build and tests" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-3548DC" alt="MIT licence" /></a>
-  <img src="https://img.shields.io/badge/status-early%20V1-E2EBD4?labelColor=26342A" alt="Early V1" />
-</p>
-
-<p align="center">
-  <a href="#try-it-in-two-minutes">Try it locally</a> ·
-  <a href="docs/self-hosting.md">Run it in your city</a> ·
-  <a href="CONTRIBUTING.md">Contribute</a> ·
-  <a href="https://github.com/b1rdmania/common/issues">Ideas &amp; bugs</a>
-</p>
-
 ## Less screen time. More real life.
 
-Common makes it easier to find local volunteering that fits your week—and bring your people along.
+Common is an open-source volunteering platform we're building to help people find something useful to do near them, at a time that fits their lives.
 
-It started with developers, founders and people working for themselves: people who spend a lot of time at a screen and would like to get out, meet someone and do something useful. A morning in a community garden. A few hours preparing food. Your old team getting back together to lend a hand.
+The idea started with developers, founders and people working for themselves. We spend a lot of time at screens. Many of us would like to get out, meet people and help with something practical, but finding the right opportunity can mean searching scattered websites and sending emails before we even know what's involved.
 
-You should be able to see what’s happening before creating an account. Hosts should be able to put a session online without learning a complicated management system.
+We want to make that first step easy.
+
+## Volunteering that fits into your week
+
+A morning in a community garden. A few hours preparing food. Your old team getting back together to lend a hand.
+
+You should be able to browse opportunities before signing up, see what you'll be doing and how much time it takes, and send a session to a friend. When you're ready, introduce yourself and request a place. The host confirms who can join.
 
 **Browse → invite friends → request a place → host confirms → show up.**
 
-## Try it in two minutes
+Going with someone you know can make it easier to try something new. Common is being built around that simple, social way of getting involved.
 
-You’ll need **Node.js 22.12+** and npm.
+## Easy for the people hosting, too
 
-```sh
-git clone https://github.com/b1rdmania/common.git
-cd common
-npm ci
-npm run demo
-```
+For local organisations and community groups, we want putting a session online to feel straightforward: describe what needs doing, choose a time and say how many people you can welcome.
 
-Open **http://localhost:3000**. No credentials required for the demo.
+Hosts need a simple place to review requests, keep volunteers informed and share the organising with their team. The aim is to spend less time on admin and more time doing the work people came to help with.
 
-| Try it as            | What you can do                                                  |
-| -------------------- | ---------------------------------------------------------------- |
-| **Alex · volunteer** | Browse, request a place, invite friends and see your plans.      |
-| **Charlie · host**   | Publish a session, review requests and manage your organisation. |
+## Start small, learn from real sessions
 
-Use **Switch role** at the top to try both sides. For a complete loop, request a place as Alex, accept it as Charlie, then switch back to Alex.
+We have an early working version. The next step is a small pilot with five to ten known hosts and a group of volunteers, starting in East London.
 
-> All demo organisations, venues and participants are fictional. The demo runs locally with shared test accounts; keep it off the public internet. Google sign-in and outgoing email are disabled in demo mode.
+We want to find out whether people can discover a session, arrange to go together and turn up with a clear idea of what to expect. Just as importantly, does it help hosts, and would both sides use it again?
 
-## What’s here
+That experience will guide what we build next. Our focus now is testing the idea with real people; we're not recruiting contributors at this stage.
 
-| For volunteers                                      | For hosts                                |
-| --------------------------------------------------- | ---------------------------------------- |
-| Browse before signing in                            | Create an organisation profile           |
-| Filter by activity, area, date and available places | Publish, edit and cancel sessions        |
-| Read preparation and accessibility details          | Accept or decline volunteer requests     |
-| Share a session with friends                        | See confirmed capacity and applicants    |
-| Request a place and follow its status               | Invite other organisers to your team     |
-| Add a session to your calendar or withdraw          | Send updates through optional SMTP email |
+## Open source, with room to grow
 
-Friends request their own places. A request becomes a booking when the host accepts it. Capacity checks happen inside a database transaction, so the last place cannot be allocated twice.
+The code is [MIT licensed](LICENSE). Our ambition is to build something other communities can adapt for their own neighbourhoods and cities.
 
-## Small enough to understand. Yours to build on.
-
-**React + Vite · Node + Express · SQLite · Better Auth**
-
-One application server and one database file. Fonts are served locally. Google provides sign-in for real installations; SMTP is optional. City, name and timezone are configurable.
-
-The code is **MIT licensed**. Run it for your neighbourhood, change the design, build an independent version, or contribute improvements here. Each installation has its own accounts and data.
-
-- [Self-hosting guide](docs/self-hosting.md) — Google sign-in, email, deployment and backups.
-- [Architecture](docs/architecture.md) — how the application fits together.
-- [Verification notes](VERIFICATION.md) — what has been tested and what hasn’t.
-
-## Help make the next version
-
-We’re looking for people who enjoy making useful software simpler. Design, accessibility, documentation and host feedback are as welcome as code.
-
-Good early contributions include:
-
-- Fixing an awkward interaction you noticed while trying the demo.
-- Improving keyboard navigation, mobile layouts or error messages.
-- Making it easier for another community to install and run Common.
-- Helping hosts describe an activity clearly and welcome first-time volunteers.
-
-For larger features, [open an issue](https://github.com/b1rdmania/common/issues/new) first so we can agree on scope. Keep pull requests small and explain the user problem they solve. Maintainers review changes before they become part of the official project.
-
-**The product rule: make it easier to volunteer or organise volunteering.** Keep the core focused; hour tracking, corporate reporting and social feeds are outside the current scope.
-
-```sh
-npm test                # Domain rules and an isolated HTTP integration journey
-npm run build          # Production bundle
-npm run format:check   # Consistent formatting
-```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
-
-## Where we are
-
-This is an **early, working V1**, intended for testing with a small group of known hosts and volunteers. The demo works today; recruiting a real pilot is the next step.
-
-Hosts currently register themselves and approve volunteer requests. **Platform approval of hosts, reporting and suspension are not built yet.** A Google login does not verify an organisation. Hosts arrange any role-specific checks; this version supports adults only.
-
-Recurring sessions, direct messages, waitlists, account-deletion controls and AI-assisted listing creation are also not implemented. Real deployments need their own operator contact, privacy information and processes for handling reports and data requests. The hosting guide explains the deployment limits.
-
-## Licence
-
-[MIT](LICENSE) © Common contributors. Reuse, modify and run the code—including commercially—with the required licence notice. Third-party dependencies retain their own licences.
+For now, we're keeping the product focused on one thing: making it easier to volunteer and to welcome volunteers.
 
 ---
 
