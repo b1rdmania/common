@@ -9,6 +9,7 @@ import nodemailer from 'nodemailer';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { openStore, Problem } from './store.mjs';
+import { hostRegistrationAllowed } from './host-policy.mjs';
 import { calendar } from './calendar.mjs';
 import { seedDemo, demoAccounts, demoPassword } from './seed.mjs';
 
@@ -29,7 +30,15 @@ if (
 const google =
   !demo &&
   Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
-const store = openStore(process.env.DATABASE_PATH || './data/common.sqlite');
+const emailEnabled = !demo && !!process.env.SMTP_HOST;
+const hostEmails = demo
+  ? demoAccounts.host.email
+  : process.env.HOST_EMAILS || '';
+const canCreateOrganisation = (user) =>
+  hostRegistrationAllowed(user, hostEmails);
+const store = openStore(process.env.DATABASE_PATH || './data/common.sqlite', {
+  emailEnabled,
+});
 const auth = betterAuth({
   appName: process.env.APP_NAME || 'Common',
   baseURL: origin,
@@ -154,8 +163,21 @@ app.get('/api/sessions', (req, res) => res.json(store.list()));
 app.get('/api/sessions/:id', (req, res) =>
   res.json(store.session(req.params.id)),
 );
-app.get('/api/sessions/:id/calendar', (req, res) => {
+app.get('/api/sessions/:id/calendar', mustSignIn, (req, res) => {
   const s = store.session(req.params.id);
+  const host = store
+    .organisations(req.user.id)
+    .some((o) => o.id === s.organisation_id);
+  const accepted = store.db
+    .prepare(
+      "SELECT id FROM applications WHERE session_id=? AND user_id=? AND status='accepted'",
+    )
+    .get(s.id, req.user.id);
+  if (s.status !== 'published' || (!host && !accepted))
+    throw new Problem(
+      403,
+      'Calendar export is available to confirmed volunteers and hosts of open sessions.',
+    );
   res
     .type('text/calendar')
     .attachment('volunteering.ics')
@@ -185,6 +207,7 @@ app.get('/api/me', async (req, res) => {
             name: session.user.name,
             email: session.user.email,
           },
+          canCreateOrganisation: canCreateOrganisation(session.user),
           organisations: store.organisations(session.user.id),
         }
       : null,
@@ -218,19 +241,32 @@ app.post('/api/applications/:id/withdraw', mustSignIn, (req, res) => {
   const s = store.session(a.session_id);
   notifyHosts(
     s,
-    `Place released: ${s.title}`,
+    `${a.status === 'accepted' ? 'Place released' : 'Request withdrawn'}: ${s.title}`,
     `${req.user.name} has withdrawn their request.`,
   );
   res.json({ ok: true });
 });
-app.post('/api/organisations', mustSignIn, (req, res) =>
+app.post('/api/organisations', mustSignIn, (req, res) => {
+  if (!canCreateOrganisation(req.user))
+    throw new Problem(
+      403,
+      'Host registration is by invitation during the pilot. Contact the site organiser to approve your sign-in email.',
+    );
   res.status(201).json({
     id: store.createOrganisation(
       req.user.id,
       organisationSchema.parse(req.body),
     ),
-  }),
-);
+  });
+});
+app.put('/api/host/organisations/:id', mustSignIn, (req, res) => {
+  store.updateOrganisation(
+    req.user.id,
+    req.params.id,
+    organisationSchema.parse(req.body),
+  );
+  res.json({ ok: true });
+});
 app.get('/api/host', mustSignIn, (req, res) => {
   const organisations = store.organisations(req.user.id);
   const ids = new Set(organisations.map((o) => o.id));
@@ -239,7 +275,17 @@ app.get('/api/host', mustSignIn, (req, res) => {
       'SELECT s.id FROM sessions s JOIN opportunities o ON o.id=s.opportunity_id JOIN memberships m ON m.organisation_id=o.organisation_id WHERE m.user_id=? ORDER BY s.starts_at',
     )
     .all(req.user.id)
-    .map((s) => store.session(s.id));
+    .map((s) => store.session(s.id))
+    .sort((a, b) => {
+      const upcoming = (s) =>
+        s.status === 'published' && s.starts_at > new Date().toISOString();
+      return (
+        Number(upcoming(b)) - Number(upcoming(a)) ||
+        (upcoming(a)
+          ? a.starts_at.localeCompare(b.starts_at)
+          : b.starts_at.localeCompare(a.starts_at))
+      );
+    });
   const applications = store.db
     .prepare(
       `SELECT a.*,u.name,u.email,o.organisation_id,o.title FROM applications a
@@ -283,17 +329,20 @@ app.put('/api/host/sessions/:id', mustSignIn, (req, res) => {
   res.json({ id: s.id });
 });
 app.post('/api/host/applications/:id/decision', mustSignIn, (req, res) => {
-  const { status } = z
-    .object({ status: z.enum(['accepted', 'declined']) })
+  const { status, expected_status } = z
+    .object({
+      status: z.enum(['accepted', 'declined']),
+      expected_status: z.enum(['pending', 'accepted', 'declined']),
+    })
     .parse(req.body);
-  const a = store.decide(req.user.id, req.params.id, status),
+  const a = store.decide(req.user.id, req.params.id, status, expected_status),
     s = store.session(a.session_id),
     email = userEmail(a.user_id);
   if (email)
     store.queueEmail(
       email,
       `${status === 'accepted' ? 'Your place is confirmed' : 'An update on your request'}: ${s.title}`,
-      `${s.organisation_name} has ${status} your request.\n\nView your plan: ${origin}/plans`,
+      `${s.organisation_name} ${status === 'accepted' ? 'has confirmed your place.' : a.previous_status === 'accepted' ? 'has cancelled your confirmed place. Please do not attend unless the host confirms a new place.' : 'couldn’t offer you a place this time.'}\n\nView your plan: ${origin}/plans`,
     );
   res.json({ ok: true });
 });

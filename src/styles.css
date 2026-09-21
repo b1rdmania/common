@@ -1379,6 +1379,7 @@ summary {
 }
 .attendee {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 15px;
@@ -1386,6 +1387,14 @@ summary {
   padding: 16px 0;
   font-size: 0.9rem;
   overflow-wrap: anywhere;
+}
+.attendee > span:first-child {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.attendee .small {
+  white-space: pre-wrap;
+  margin-bottom: 0;
 }
 .attendee:first-of-type {
   margin-top: 12px;
@@ -1398,6 +1407,7 @@ summary {
 }
 .host-session-bottom {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 15px;

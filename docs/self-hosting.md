@@ -45,9 +45,13 @@ This version is designed for **one Node process with a local persistent SQLite d
 
 To back up, stop the app and copy the whole `data` directory to a protected backup location. Restore with the app stopped. Treat the database, `.env` and backups as private: they contain account data, session tokens and volunteer contact details. Do not commit them.
 
+### Approved pilot hosts
+
+Set `HOST_EMAILS` to the comma-separated Google email addresses of known hosts, then restart the server. An empty setting blocks all new organisation registration. Matching is case-insensitive and requires a verified email; wildcards are not supported. Existing organisation members keep access, and owners can invite organisers without adding them to this list. Removing an email blocks new organisation creation but does not revoke existing memberships. Demo mode permits only the fictional host account to create organisations.
+
 ### Email
 
-Without SMTP, requests and decisions still work and are visible in **My plans** and **Your host space**. The UI makes the absence of email clear. With SMTP configured, a worker tries queued messages every 15 seconds, up to five delivery attempts. A queued message is not proof of delivery. There is no email-queue admin screen in V1. Previously queued, unsent messages will be attempted when SMTP is connected; use a fresh database for a real launch after testing.
+Without SMTP, requests and decisions still work and are visible in **My plans** and **Your host space**. The UI makes the absence of email clear. With SMTP configured, a worker tries queued messages every 15 seconds, up to five delivery attempts. A queued message is not proof of delivery. There is no email-queue admin screen in V1. With email disabled, new notifications are not queued. Older versions may have left unsent messages: these will still be attempted when SMTP is connected, so use a fresh database for a real launch after testing. Test real request, decision, correction and cancellation emails before inviting pilot users.
 
 ## Try the local demo
 

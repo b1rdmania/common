@@ -62,7 +62,7 @@ test('duplicate applications and repeated decisions are rejected', (t) => {
   const a = store.apply('one', session, '');
   assert.throws(() => store.apply('one', session, ''), /already/);
   store.decide('host', a, 'declined');
-  assert.throws(() => store.decide('host', a, 'accepted'), /already/);
+  assert.throws(() => store.decide('host', a, 'declined'), /already/);
 });
 test('cancellation closes discovery and requests without erasing history', (t) => {
   const { store, session } = setup(t);
@@ -189,4 +189,67 @@ test('editing keeps applications and cannot reduce capacity below confirmed plac
   );
   store.cancelSession('host', session);
   assert.throws(() => store.updateSession('host', session, input), /upcoming/);
+});
+
+test('decision corrections preserve capacity and never revive withdrawals', (t) => {
+  const { store, session } = setup(t);
+  const a = store.apply('one', session, 'Need step-free access');
+  const b = store.apply('two', session, '');
+  store.decide('host', a, 'declined');
+  store.decide('host', b, 'accepted');
+  assert.throws(() => store.decide('host', a, 'accepted'), /no places/);
+  store.decide('host', b, 'declined');
+  store.decide('host', a, 'accepted');
+  assert.equal(store.session(session).places_left, 0);
+  assert.equal(
+    store.db.prepare('SELECT note FROM applications WHERE id=?').get(a).note,
+    'Need step-free access',
+  );
+  store.withdraw('one', a);
+  assert.throws(() => store.decide('host', a, 'accepted'), /already/);
+  assert.throws(() => store.decide('host', a, 'declined'), /already/);
+});
+
+test('only owners can edit organisation details', (t) => {
+  const { store, org, session } = setup(t);
+  store.db
+    .prepare("INSERT INTO memberships VALUES(?,?,'organiser')")
+    .run(org, 'helper');
+  const input = {
+    name: 'Updated garden',
+    description: 'A corrected description for our garden.',
+    website: '',
+  };
+  for (const user of ['outsider', 'helper'])
+    assert.throws(
+      () => store.updateOrganisation(user, org, input),
+      /permission/,
+    );
+  store.updateOrganisation('host', org, input);
+  assert.equal(store.session(session).organisation_name, input.name);
+});
+
+test('disabled email does not build a backlog; enabled email queues for delivery', (t) => {
+  for (const enabled of [false, true]) {
+    const store = openStore(':memory:', { emailEnabled: enabled });
+    t.after(() => store.db.close());
+    store.queueEmail('test@example.org', 'Decision', 'Confirmed');
+    assert.equal(
+      store.db.prepare('SELECT COUNT(*) AS n FROM mail_outbox').get().n,
+      enabled ? 1 : 0,
+    );
+  }
+});
+
+test('a stale host screen cannot reverse a newer decision', (t) => {
+  const { store, session } = setup(t);
+  const a = store.apply('one', session, '');
+  store.decide('host', a, 'accepted', 'pending');
+  assert.throws(
+    () => store.decide('host', a, 'declined', 'pending'),
+    /Refresh/,
+  );
+  assert.equal(store.session(session).places_left, 0);
+  store.decide('host', a, 'declined', 'accepted');
+  assert.equal(store.session(session).places_left, 1);
 });

@@ -12,7 +12,7 @@ export class Problem extends Error {
 const id = () => randomUUID();
 const hash = (value) => createHash('sha256').update(value).digest('hex');
 
-export function openStore(path) {
+export function openStore(path, { emailEnabled = false } = {}) {
   if (path !== ':memory:')
     mkdirSync(dirname(resolve(path)), { recursive: true });
   const db = new Database(path);
@@ -114,6 +114,12 @@ export function openStore(path) {
         );
         return orgId;
       })();
+    },
+    updateOrganisation(userId, orgId, input) {
+      requireMember(orgId, userId, true);
+      db.prepare(
+        'UPDATE organisations SET name=?,description=?,website=? WHERE id=?',
+      ).run(input.name, input.description, input.website || '', orgId);
     },
     createSession(userId, input) {
       requireMember(input.organisation_id, userId);
@@ -262,7 +268,7 @@ export function openStore(path) {
         })
         .immediate();
     },
-    decide(userId, appId, status) {
+    decide(userId, appId, status, expectedStatus) {
       if (!['accepted', 'declined'].includes(status))
         throw new Problem(400, 'Invalid decision.');
       return db
@@ -273,19 +279,31 @@ export function openStore(path) {
           if (!application) throw new Problem(404, 'Request not found.');
           const s = session(application.session_id);
           requireMember(s.organisation_id, userId);
+          if (expectedStatus && application.status !== expectedStatus)
+            throw new Problem(
+              409,
+              'This decision changed. Refresh the host space before trying again.',
+            );
           if (
             s.status !== 'published' ||
             s.starts_at <= new Date().toISOString()
           )
             throw new Problem(409, 'This session has ended or been cancelled.');
-          if (application.status !== 'pending')
+          if (
+            application.status === 'withdrawn' ||
+            application.status === status
+          )
             throw new Problem(409, 'This request has already been updated.');
           if (status === 'accepted' && s.places_left <= 0)
             throw new Problem(409, 'There are no places left.');
           db.prepare(
             'UPDATE applications SET status=?,decided_by=?,updated_at=? WHERE id=?',
           ).run(status, userId, new Date().toISOString(), appId);
-          return { ...application, status };
+          return {
+            ...application,
+            previous_status: application.status,
+            status,
+          };
         })
         .immediate();
     },
@@ -360,6 +378,7 @@ export function openStore(path) {
         .immediate();
     },
     queueEmail(recipient, subject, body) {
+      if (!emailEnabled) return;
       db.prepare(
         'INSERT INTO mail_outbox(id,recipient,subject,body) VALUES(?,?,?,?)',
       ).run(id(), recipient, subject, body);

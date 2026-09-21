@@ -1,3 +1,4 @@
+import Database from 'better-sqlite3';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -103,6 +104,24 @@ test(
     });
     assert.equal(host.status, 200);
     assert.equal(volunteer.status, 200);
+    assert.equal(
+      (
+        await request('/organisations', {
+          cookie: volunteer.cookie,
+          method: 'POST',
+          body: {
+            name: 'Unapproved',
+            description: 'This should never become a host.',
+          },
+        })
+      ).status,
+      403,
+    );
+    assert.equal(
+      (await request('/me', { cookie: volunteer.cookie })).data
+        .canCreateOrganisation,
+      false,
+    );
     const org = await request('/organisations', {
       cookie: host.cookie,
       method: 'POST',
@@ -114,6 +133,31 @@ test(
       },
     });
     assert.equal(org.status, 201);
+    const editOrg = {
+      name: 'Updated community',
+      description: 'A corrected description for the test community.',
+      website: '',
+    };
+    assert.equal(
+      (
+        await request(`/host/organisations/${org.data.id}`, {
+          cookie: volunteer.cookie,
+          method: 'PUT',
+          body: editOrg,
+        })
+      ).status,
+      403,
+    );
+    assert.equal(
+      (
+        await request(`/host/organisations/${org.data.id}`, {
+          cookie: host.cookie,
+          method: 'PUT',
+          body: editOrg,
+        })
+      ).status,
+      200,
+    );
     const input = {
       organisation_id: org.data.id,
       title: 'Test community garden session',
@@ -144,6 +188,10 @@ test(
     });
     assert.equal(created.status, 201);
     const path = `/sessions/${created.data.id}`;
+    assert.equal(
+      (await request(`${path}/calendar`, { cookie: volunteer.cookie })).status,
+      403,
+    );
     const listing = await request(path);
     assert.equal(listing.status, 200);
     assert.equal(JSON.stringify(listing.data).includes('@'), false);
@@ -178,7 +226,7 @@ test(
         await request(`/host/applications/${applied.data.id}/decision`, {
           cookie: volunteer.cookie,
           method: 'POST',
-          body: { status: 'accepted' },
+          body: { status: 'accepted', expected_status: 'pending' },
         })
       ).status,
       403,
@@ -188,7 +236,37 @@ test(
         await request(`/host/applications/${applied.data.id}/decision`, {
           cookie: host.cookie,
           method: 'POST',
-          body: { status: 'accepted' },
+          body: { status: 'accepted', expected_status: 'pending' },
+        })
+      ).status,
+      200,
+    );
+    const calendar = await fetch(`${origin}/api${path}/calendar`, {
+      headers: { Cookie: volunteer.cookie },
+    });
+    assert.equal(calendar.status, 200);
+    assert.match(await calendar.text(), /BEGIN:VCALENDAR/);
+    const decisionPath = `/host/applications/${applied.data.id}/decision`;
+    assert.equal(
+      (
+        await request(decisionPath, {
+          cookie: host.cookie,
+          method: 'POST',
+          body: { status: 'declined', expected_status: 'accepted' },
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (await request(`${path}/calendar`, { cookie: volunteer.cookie })).status,
+      403,
+    );
+    assert.equal(
+      (
+        await request(decisionPath, {
+          cookie: host.cookie,
+          method: 'POST',
+          body: { status: 'accepted', expected_status: 'declined' },
         })
       ).status,
       200,
@@ -221,6 +299,16 @@ test(
         })
       ).status,
       200,
+    );
+    assert.equal(
+      (
+        await request(decisionPath, {
+          cookie: host.cookie,
+          method: 'POST',
+          body: { status: 'accepted', expected_status: 'pending' },
+        })
+      ).status,
+      409,
     );
     assert.equal((await request(path)).data.places_left, 1);
     assert.equal(
@@ -279,5 +367,11 @@ test(
       ).status,
       403,
     );
+    const db = new Database(join(directory, 'test.sqlite'), { readonly: true });
+    assert.equal(
+      db.prepare('SELECT COUNT(*) AS n FROM mail_outbox').get().n,
+      0,
+    );
+    db.close();
   },
 );

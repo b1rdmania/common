@@ -17,6 +17,7 @@ import {
   useNavigate,
   useParams,
   useLocation,
+  useSearchParams,
 } from 'react-router-dom';
 import {
   ArrowUpRight,
@@ -457,6 +458,14 @@ function Shell() {
             }
           />
           <Route
+            path="/host/organisations/:id/edit"
+            element={
+              <Protected>
+                <NewOrganisation />
+              </Protected>
+            }
+          />
+          <Route
             path="/host/register"
             element={
               <Protected>
@@ -669,7 +678,8 @@ function Explore() {
                 <div className="card-bottom">
                   <span>
                     <Users size={15} />
-                    {s.places_left} places available
+                    {s.places_left} {s.places_left === 1 ? 'place' : 'places'}{' '}
+                    available
                   </span>
                   <button
                     className="icon-button"
@@ -857,7 +867,7 @@ function Detail() {
               <span>
                 {closed
                   ? 'Session unavailable'
-                  : `${s.places_left} places available`}
+                  : `${s.places_left} ${s.places_left === 1 ? 'place' : 'places'} available`}
               </span>
               <strong>Free</strong>
             </div>
@@ -965,9 +975,16 @@ function Detail() {
             >
               <Users size={17} /> Invite friends
             </button>
-            <a className="calendar-link" href={`/api/sessions/${id}/calendar`}>
-              <CalendarDays size={15} /> Add to calendar
-            </a>
+            {s.status === 'published' &&
+              (application?.status === 'accepted' ||
+                me?.organisations.some((o) => o.id === s.organisation_id)) && (
+                <a
+                  className="calendar-link"
+                  href={`/api/sessions/${id}/calendar`}
+                >
+                  <CalendarDays size={15} /> Add to calendar
+                </a>
+              )}
           </div>
           <p className="booking-footnote">
             Come as you are. Everyone starts somewhere.
@@ -988,7 +1005,11 @@ function SignIn() {
       ? raw
       : '/plans';
   const [busy, setBusy] = useState(''),
-    [error, setError] = useState('');
+    [error, setError] = useState(
+      new URLSearchParams(location.search).has('error')
+        ? 'Google sign-in did not complete. Please try again.'
+        : '',
+    );
   async function demoLogin(role) {
     setBusy(role);
     setError('');
@@ -1027,6 +1048,7 @@ function SignIn() {
                 const result = await authClient.signIn.social({
                   provider: 'google',
                   callbackURL: next,
+                  errorCallbackURL: '/signin?error=google',
                 });
                 if (result.error) throw new Error(result.error.message);
               } catch (e) {
@@ -1284,6 +1306,7 @@ function HostDashboard() {
     [tab, setTab] = useState('requests'),
     [busy, setBusy] = useState(''),
     [actionError, setActionError] = useState(''),
+    [change, setChange] = useState(null),
     [cancel, setCancel] = useState(null),
     [invite, setInvite] = useState(null);
   const sessions =
@@ -1302,8 +1325,12 @@ function HostDashboard() {
     setBusy(a.id);
     setActionError('');
     try {
-      await post(`/host/applications/${a.id}/decision`, { status });
+      await post(`/host/applications/${a.id}/decision`, {
+        status,
+        expected_status: a.status,
+      });
       reload();
+      setChange(null);
     } catch (e) {
       setActionError(e.message);
     } finally {
@@ -1494,12 +1521,29 @@ function HostDashboard() {
                         <span>
                           {a.name}
                           <small>{a.email}</small>
+                          {a.note && <p className="small">{a.note}</p>}
                         </span>
                         <Badge status={a.status} />
+                        {s.status === 'published' &&
+                          future(s) &&
+                          ['accepted', 'declined'].includes(a.status) && (
+                            <button
+                              className="text-button"
+                              onClick={() => {
+                                setActionError('');
+                                setChange(a);
+                              }}
+                            >
+                              Change decision
+                            </button>
+                          )}
                       </div>
                     ))}
                 </details>
                 <div className="host-session-bottom">
+                  <Link className="text-link" to={`/host/new?copy=${s.id}`}>
+                    Create another date
+                  </Link>
                   <Link className="text-link" to={`/opportunities/${s.id}`}>
                     View listing <ArrowUpRight size={16} />
                   </Link>
@@ -1547,6 +1591,14 @@ function HostDashboard() {
                 <div className="section-heading">
                   <h2>{o.name}</h2>
                   {o.role === 'owner' && (
+                    <Link
+                      className="text-link"
+                      to={`/host/organisations/${o.id}/edit`}
+                    >
+                      Edit organisation
+                    </Link>
+                  )}
+                  {o.role === 'owner' && (
                     <button
                       className="button secondary"
                       onClick={() => setInvite(o)}
@@ -1593,6 +1645,36 @@ function HostDashboard() {
               </section>
             ))}
         </div>
+      )}
+      {change && (
+        <Modal
+          title={
+            change.status === 'accepted'
+              ? 'Remove this confirmed place?'
+              : 'Offer a place?'
+          }
+          onClose={() => !busy && setChange(null)}
+        >
+          <p>
+            {change.name} will see the updated decision in My plans.{' '}
+            {config.email
+              ? 'An email notification will be queued.'
+              : 'Email is not connected; contact them directly about the change.'}
+          </p>
+          <ErrorMessage>{actionError}</ErrorMessage>
+          <Button
+            busy={!!busy}
+            className="button primary full"
+            onClick={() =>
+              decide(
+                change,
+                change.status === 'accepted' ? 'declined' : 'accepted',
+              )
+            }
+          >
+            {change.status === 'accepted' ? 'Remove place' : 'Confirm place'}
+          </Button>
+        </Modal>
       )}
       {cancel && (
         <Modal
@@ -1749,10 +1831,26 @@ function JoinTeam() {
   );
 }
 function NewOrganisation() {
-  const { refresh } = useApp();
+  const { refresh, me } = useApp();
+  const { id } = useParams();
+  const organisation = me.organisations.find((o) => o.id === id);
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false),
     [error, setError] = useState('');
+  if (id ? organisation?.role !== 'owner' : !me.canCreateOrganisation)
+    return (
+      <div className="page narrow">
+        <h1>
+          {id ? 'Organisation access' : 'A small start, with known hosts.'}
+        </h1>
+        <p>
+          {id
+            ? 'Only the owner can edit this organisation.'
+            : 'Host registration is by invitation during the pilot. Contact the site organiser to approve your sign-in email, or ask an existing host to invite you to their team.'}
+        </p>
+        <Link to="/host">Back to host space</Link>
+      </div>
+    );
   return (
     <div className="page narrow">
       <Link className="back-link" to="/host">
@@ -1776,9 +1874,12 @@ function NewOrganisation() {
           setBusy(true);
           setError('');
           try {
-            await post('/organisations', Object.fromEntries(form));
+            await api(id ? `/host/organisations/${id}` : '/organisations', {
+              method: id ? 'PUT' : 'POST',
+              body: JSON.stringify(Object.fromEntries(form)),
+            });
             await refresh();
-            navigate('/host/new');
+            navigate(id ? '/host' : '/host/new');
           } catch (e) {
             setError(e.message);
           } finally {
@@ -1789,6 +1890,7 @@ function NewOrganisation() {
         <Field label="Organisation name">
           <input
             name="name"
+            defaultValue={organisation?.name}
             minLength={2}
             maxLength={100}
             required
@@ -1801,6 +1903,7 @@ function NewOrganisation() {
         >
           <textarea
             name="description"
+            defaultValue={organisation?.description}
             minLength={20}
             maxLength={2000}
             required
@@ -1809,7 +1912,12 @@ function NewOrganisation() {
           />
         </Field>
         <Field label="Website (optional)">
-          <input name="website" type="url" placeholder="https://" />
+          <input
+            name="website"
+            defaultValue={organisation?.website}
+            type="url"
+            placeholder="https://"
+          />
         </Field>
         <label className="check-field">
           <input type="checkbox" required />
@@ -1820,7 +1928,8 @@ function NewOrganisation() {
         </label>
         <ErrorMessage>{error}</ErrorMessage>
         <Button busy={busy} className="button primary full">
-          Create organisation <ArrowRight size={17} />
+          {id ? 'Save organisation' : 'Create organisation'}{' '}
+          <ArrowRight size={17} />
         </Button>
       </form>
     </div>
@@ -1828,7 +1937,9 @@ function NewOrganisation() {
 }
 function NewSession() {
   const { id } = useParams();
-  const existing = useData(id ? `/sessions/${id}` : null);
+  const [params] = useSearchParams();
+  const copy = params.get('copy');
+  const existing = useData(id || copy ? `/sessions/${id || copy}` : null);
   const { me, config } = useApp();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false),
@@ -1848,13 +1959,13 @@ function NewSession() {
         </Empty>
       </div>
     );
-  if (id && existing.error)
+  if ((id || copy) && existing.error)
     return (
       <div className="page">
         <ErrorMessage>{existing.error}</ErrorMessage>
       </div>
     );
-  if (id && !existing.data) return <Loading />;
+  if ((id || copy) && !existing.data) return <Loading />;
   const session = existing.data;
   if (
     session &&
@@ -1901,7 +2012,9 @@ function NewSession() {
           <p>
             {id
               ? 'Keep your volunteers up to date.'
-              : 'A clear invitation is all it takes to get started.'}
+              : copy
+                ? 'The details are copied. Choose a new date before publishing.'
+                : 'A clear invitation is all it takes to get started.'}
           </p>
         </div>
       </div>
@@ -1918,8 +2031,9 @@ function NewSession() {
                 method: id ? 'PUT' : 'POST',
                 body: JSON.stringify({
                   ...values,
-                  organisation_id:
-                    session?.organisation_id || values.organisation_id,
+                  organisation_id: id
+                    ? session.organisation_id
+                    : values.organisation_id,
                   capacity: Number(values.capacity),
                   starts_at: new Date(values.starts_at).toISOString(),
                   ends_at: new Date(values.ends_at).toISOString(),
@@ -1997,7 +2111,7 @@ function NewSession() {
                 <input
                   type="datetime-local"
                   name="starts_at"
-                  defaultValue={localDate(session?.starts_at)}
+                  defaultValue={localDate(id ? session?.starts_at : null)}
                   required
                 />
               </Field>
@@ -2005,7 +2119,7 @@ function NewSession() {
                 <input
                   type="datetime-local"
                   name="ends_at"
-                  defaultValue={localDate(session?.ends_at)}
+                  defaultValue={localDate(id ? session?.ends_at : null)}
                   required
                 />
               </Field>
