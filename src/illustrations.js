@@ -13,8 +13,3 @@ export const neighbourScenes = {
     alt: 'Two neighbours working together with a litter picker and rubbish sack',
   },
 };
-export const demoScenes = {
-  'Give the garden a Saturday.': 'garden',
-  'Good food, going to good homes.': 'parcels',
-  'A cleaner canal. A better morning.': 'cleanup',
-};

@@ -2189,30 +2189,6 @@ dialog::backdrop {
 .neighbour-intro a {
   margin-top: 10px;
 }
-.illustrated-activity {
-  background: #fcfcf9;
-  color: #18231e;
-}
-.illustration-category {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 14px 20px 0;
-  font-size: 0.7rem;
-}
-.illustration-meta {
-  padding: 10px 20px 15px;
-  font-size: 0.82rem;
-  font-weight: 600;
-}
-.illustrated-detail {
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  overflow: hidden;
-}
-.illustrated-detail .illustration-meta {
-  font-size: 1.25rem;
-}
 .host-introduction {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
@@ -2241,16 +2217,15 @@ dialog::backdrop {
     grid-template-columns: 1fr;
     gap: 24px;
   }
-  .illustration-category {
-    padding: 12px 12px 0;
-  }
-  .illustration-meta {
-    padding: 8px 12px 12px;
-  }
 }
 .neighbour-intro .note-line {
   color: var(--ink, #18231e);
 }
 .neighbour-intro .note-line + .note-line {
   color: var(--blue);
+}
+
+.page-decoration {
+  width: min(260px, 70vw);
+  margin: 12px auto 24px;
 }

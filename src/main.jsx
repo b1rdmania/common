@@ -51,7 +51,7 @@ import { createAuthClient } from 'better-auth/react';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/dm-sans';
 import './styles.css';
-import { neighbourScenes, demoScenes } from './illustrations';
+import { neighbourScenes } from './illustrations';
 import { demoActivities, demoHosts } from './demo-content';
 
 const authClient = createAuthClient();
@@ -95,7 +95,7 @@ function NeighbourIllustration({
   className = '',
   eager = false,
   sizes = '(max-width: 700px) 100vw, 50vw',
-  onError,
+  decorative = false,
 }) {
   const { name, alt } = neighbourScenes[scene];
   return (
@@ -106,10 +106,9 @@ function NeighbourIllustration({
       sizes={sizes}
       width="1280"
       height="720"
-      alt={alt}
+      alt={decorative ? '' : alt}
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"
-      onError={onError}
     />
   );
 }
@@ -118,38 +117,7 @@ function ActivityArtwork({ session, detail = false }) {
   const photo = config.demo ? demoActivities[session.title] : null;
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [photo?.src]);
-  const scene = config.demo ? demoScenes[session.title] : null;
   const hasPhoto = photo && !failed;
-  if (scene && !failed)
-    return (
-      <div
-        className={`illustrated-activity ${detail ? 'illustrated-detail' : ''}`}
-      >
-        <div className="illustration-category">
-          <CategoryIcon category={session.category} size={15} />
-          {session.category}
-        </div>
-        <NeighbourIllustration
-          scene={scene}
-          eager={detail}
-          sizes={
-            detail
-              ? '(max-width: 900px) 100vw, 65vw'
-              : '(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 33vw'
-          }
-          onError={() => setFailed(true)}
-        />
-        <div className="illustration-meta">
-          {detail
-            ? session.area
-            : date(session.starts_at, {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'short',
-              })}
-        </div>
-      </div>
-    );
   return (
     <>
       <div
@@ -553,6 +521,21 @@ function Shell() {
           />
         </Routes>
       </main>
+      {location.pathname !== '/' && !(location.pathname === '/host' && !me) && (
+        <div className="page-decoration" aria-hidden="true">
+          <NeighbourIllustration
+            decorative
+            scene={
+              location.pathname.startsWith('/host')
+                ? 'parcels'
+                : location.pathname === '/signin'
+                  ? 'garden'
+                  : 'cleanup'
+            }
+            sizes="260px"
+          />
+        </div>
+      )}
       <footer>
         <Link className="footer-brand" to="/">
           {config.name}
