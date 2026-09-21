@@ -1,6 +1,9 @@
 # Run Common for your community
 
+Requires Node.js 22.12 or later. From the repository directory:
+
 ```sh
+npm ci
 cp .env.example .env
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
@@ -45,6 +48,14 @@ To back up, stop the app and copy the whole `data` directory to a protected back
 ### Email
 
 Without SMTP, requests and decisions still work and are visible in **My plans** and **Your host space**. The UI makes the absence of email clear. With SMTP configured, a worker tries queued messages every 15 seconds, up to five delivery attempts. A queued message is not proof of delivery. There is no email-queue admin screen in V1. Previously queued, unsent messages will be attempted when SMTP is connected; use a fresh database for a real launch after testing.
+
+## Try the local demo
+
+Run `npm run demo` to explore with fictional accounts and opportunities, without Google credentials. Demo mode uses a separate database and disables Google OAuth and SMTP delivery.
+
+## Deployment status
+
+This is an early version intended for a small pilot. Real Google OAuth, external SMTP delivery and deployment behind a public HTTPS proxy still need end-to-end verification before a live launch.
 
 ## Reset the local demo
 
