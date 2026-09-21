@@ -2160,3 +2160,97 @@ dialog::backdrop {
     height: 42px;
   }
 }
+
+/* Approved illustrations retain the whole scene, with labels outside the image. */
+.neighbour-illustration {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+}
+.intro-note.neighbour-intro {
+  border: 0;
+  padding: 0;
+  width: 420px;
+  flex: 0 1 420px;
+}
+.neighbour-intro .neighbour-illustration {
+  margin-bottom: 12px;
+}
+.neighbour-intro .note-line {
+  font-size: 1.05rem;
+  display: inline;
+}
+.neighbour-intro .note-line + .note-line {
+  margin-left: 5px;
+  color: var(--blue);
+}
+.neighbour-intro a {
+  margin-top: 10px;
+}
+.illustrated-activity {
+  background: #fcfcf9;
+  color: #18231e;
+}
+.illustration-category {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 20px 0;
+  font-size: 0.7rem;
+}
+.illustration-meta {
+  padding: 10px 20px 15px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.illustrated-detail {
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  overflow: hidden;
+}
+.illustrated-detail .illustration-meta {
+  font-size: 1.25rem;
+}
+.host-introduction {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: 32px;
+}
+.host-introduction p {
+  color: var(--muted);
+  max-width: 580px;
+  font-size: 1.1rem;
+}
+@media (max-width: 700px) {
+  .intro:has(.neighbour-intro) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 22px;
+  }
+  .intro-note.neighbour-intro {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    flex: auto;
+    margin: 0 auto;
+  }
+  .host-introduction {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .illustration-category {
+    padding: 12px 12px 0;
+  }
+  .illustration-meta {
+    padding: 8px 12px 12px;
+  }
+}
+.neighbour-intro .note-line {
+  color: var(--ink, #18231e);
+}
+.neighbour-intro .note-line + .note-line {
+  color: var(--blue);
+}

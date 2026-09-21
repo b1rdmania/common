@@ -51,6 +51,7 @@ import { createAuthClient } from 'better-auth/react';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/dm-sans';
 import './styles.css';
+import { neighbourScenes, demoScenes } from './illustrations';
 import { demoActivities, demoHosts } from './demo-content';
 
 const authClient = createAuthClient();
@@ -89,12 +90,66 @@ const CategoryIcon = ({ category, ...props }) => {
           : HandHeart;
   return <Icon {...props} />;
 };
+function NeighbourIllustration({
+  scene,
+  className = '',
+  eager = false,
+  sizes = '(max-width: 700px) 100vw, 50vw',
+  onError,
+}) {
+  const { name, alt } = neighbourScenes[scene];
+  return (
+    <img
+      className={`neighbour-illustration ${className}`}
+      src={`/illustrations/${name}-640.webp`}
+      srcSet={`/illustrations/${name}-640.webp 640w, /illustrations/${name}-1280.webp 1280w`}
+      sizes={sizes}
+      width="1280"
+      height="720"
+      alt={alt}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+      onError={onError}
+    />
+  );
+}
 function ActivityArtwork({ session, detail = false }) {
   const { config } = useApp();
   const photo = config.demo ? demoActivities[session.title] : null;
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [photo?.src]);
+  const scene = config.demo ? demoScenes[session.title] : null;
   const hasPhoto = photo && !failed;
+  if (scene && !failed)
+    return (
+      <div
+        className={`illustrated-activity ${detail ? 'illustrated-detail' : ''}`}
+      >
+        <div className="illustration-category">
+          <CategoryIcon category={session.category} size={15} />
+          {session.category}
+        </div>
+        <NeighbourIllustration
+          scene={scene}
+          eager={detail}
+          sizes={
+            detail
+              ? '(max-width: 900px) 100vw, 65vw'
+              : '(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 33vw'
+          }
+          onError={() => setFailed(true)}
+        />
+        <div className="illustration-meta">
+          {detail
+            ? session.area
+            : date(session.starts_at, {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'short',
+              })}
+        </div>
+      </div>
+    );
   return (
     <>
       <div
@@ -581,7 +636,12 @@ function Explore() {
             <br className="mobile-only" /> Find something useful to do together.
           </p>
         </div>
-        <div className="intro-note">
+        <div className="intro-note neighbour-intro">
+          <NeighbourIllustration
+            scene="garden"
+            eager
+            sizes="(max-width: 700px) 100vw, 420px"
+          />
           <span className="note-line">Less screen time.</span>
           <span className="note-line">More real life.</span>
           <Link to="/host">
@@ -1256,18 +1316,27 @@ function HostLanding() {
     <HostDashboard />
   ) : (
     <div className="page host-landing">
-      <div className="eyebrow">FOR LOCAL ORGANISATIONS</div>
-      <h1>
-        A few more hands.
-        <br />A lot more possible.
-      </h1>
-      <p>
-        Tell people what needs doing, choose a date, and welcome them in. You
-        decide who joins.
-      </p>
-      <Link className="button primary" to="/host/register">
-        Register as a host <ArrowUpRight size={18} />
-      </Link>
+      <div className="host-introduction">
+        <div>
+          <div className="eyebrow">FOR LOCAL ORGANISATIONS</div>
+          <h1>
+            A few more hands.
+            <br />A lot more possible.
+          </h1>
+          <p>
+            Tell people what needs doing, choose a date, and welcome them in.
+            You decide who joins.
+          </p>
+          <Link className="button primary" to="/host/register">
+            Register as a host <ArrowUpRight size={18} />
+          </Link>
+        </div>
+        <NeighbourIllustration
+          scene="parcels"
+          eager
+          sizes="(max-width: 700px) 100vw, 50vw"
+        />
+      </div>
       <div className="host-steps">
         {[
           [

@@ -1,0 +1,20 @@
+[
+  {
+    "source": "assets/neighbour-scenarios/01-community-garden.png",
+    "sha256": "de28288fbfbf60dd22f11c35f7b588abbd1cb4327f2a454e393e2bc0e34ac1ab",
+    "originalBytes": 1734727,
+    "webBytes": 76794
+  },
+  {
+    "source": "assets/neighbour-scenarios/02-food-parcels.png",
+    "sha256": "2000c33372758e95a8ec0660e196aef7f224364bb9f4e203d964ee45b520b48a",
+    "originalBytes": 1731473,
+    "webBytes": 71216
+  },
+  {
+    "source": "assets/neighbour-scenarios/03-neighbourhood-litter-pick.png",
+    "sha256": "38f5279d7a764b37a1a8b9d3e9a64aa457d945af75cc2577fbc6b6532af0f875",
+    "originalBytes": 1668067,
+    "webBytes": 65908
+  }
+]

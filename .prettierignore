@@ -2,3 +2,8 @@ node_modules
 dist
 data
 package-lock.json
+# Local project notes, media source material and preserved illustration originals.
+.local
+AGENTS.md
+PROJECT_CONTEXT.md
+assets
