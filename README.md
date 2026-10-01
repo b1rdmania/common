@@ -1,55 +1,53 @@
 <p align="center">
-  <img src="docs/assets/common-banner.svg" alt="Common — Get out. Do some good." width="100%" />
+  <img src="docs/assets/common-banner.svg" alt="Common" width="100%" />
 </p>
 
-<p align="center">
-  <strong>A few hours, a few good people. Find something useful to do together.</strong>
-</p>
+Common is a volunteer sign-up app for one organisation or local network. Hosts post dated sessions. Volunteers request a place. Hosts accept or decline.
 
-## Less screen time. More real life.
+The project is parked. The code works and is MIT licensed. If you run volunteers, fork it and use it.
 
-Common is an open-source volunteering platform we're building to help people find something useful to do near them, at a time that fits their lives.
-
-## Find your next good thing
-
-Browse opportunities, read what’s involved and request a place.
-
-Sign in, introduce yourself, and the host will confirm your place.
-
-## Better with your people.
-
-Send a session to a friend, your old team or the group chat.
-
-Everyone requests their own place. Sharing a link doesn’t reserve spaces for the group.
-
-## A few more hands. A lot more possible.
-
-Tell people what needs doing, choose a date, and welcome them in. You decide who joins.
-
-1. **Introduce your organisation.** Create a profile and add the people who help you organise.
-2. **Put a session out there.** Say what you need, when it happens, and how many people can come.
-3. **Welcome your volunteers.** Review requests, accept people and get ready for the day.
-
-Free to use. Open source. No corporate programme required.
-
-## Early screens
-
-A first look at browsing and hosting. All people, organisations and opportunities shown here are fictional demo data.
-
-| Find something to do                                                                               | Welcome volunteers                                                                                 |
+| Find something to do                                                                               | Review requests                                                                                    |
 | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | ![Opportunity cards showing activities, dates and available places](docs/assets/opportunities.png) | ![Host dashboard showing volunteer requests and approval controls](docs/assets/host-dashboard.png) |
 
-## Where we are
+## What it does
 
-We have an early working version. The next step is a small pilot with five to ten known hosts and a group of volunteers, starting in East London.
+- Public listings with dates, places and location.
+- Google sign-in. Volunteers request a place with a short note.
+- Host teams: owners invite organisers. Hosts accept, decline or change a decision.
+- Capacity checks. No overbooking.
+- Calendar export and optional email updates.
+- Host sign-up limited to an email allowlist.
 
-Our focus now is learning from real sessions. We're not recruiting contributors at this stage.
+It does not do hour tracking, employer reporting, payments, recurring sessions or messaging.
 
-## Built to belong to everyone.
+## Run it
 
-Open source · [MIT](LICENSE)
+Try it with fictional data. You do not need credentials.
 
----
+```sh
+npm ci
+npm run demo
+```
 
-<p align="center"><strong>Small acts. Shared company.</strong></p>
+To run it for real, see [docs/self-hosting.md](docs/self-hosting.md). It is one Node process with a SQLite file. A Dockerfile and a Fly.io example are included.
+
+Stack: React, Vite, Express, Better Auth, SQLite. See [docs/architecture.md](docs/architecture.md).
+
+## What we learned
+
+We parked Common after we spoke with someone who ran a similar platform in San Francisco. Read this before you build a public volunteering platform:
+
+1. Host organisations need a lot of help to write listings. Many do not answer volunteer questions, for example "Do I bring gloves?".
+2. It is hard to get volunteers unless you serve a group that already exists and shares a cause.
+3. Most people do not volunteer a second time. Growth goes up and then down.
+
+[GoodGym](https://www.goodgym.org) already does this well in the UK, with a fitness angle.
+
+The app fits better as a tool for one organisation that already has volunteers.
+
+## Status
+
+Not maintained. Real Google OAuth, SMTP delivery and a public HTTPS deploy have not had a full end-to-end test. Test them before you invite people. Issues and pull requests are welcome, but replies can be slow.
+
+[MIT](LICENSE)

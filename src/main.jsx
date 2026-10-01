@@ -1898,7 +1898,7 @@ function NewOrganisation() {
         <p>
           {id
             ? 'Only the owner can edit this organisation.'
-            : 'Host registration is by invitation during the pilot. Contact the site organiser to approve your sign-in email, or ask an existing host to invite you to their team.'}
+            : 'Host registration is by invitation. Contact the site organiser to approve your sign-in email, or ask an existing host to invite you to their team.'}
         </p>
         <Link to="/host">Back to host space</Link>
       </div>
