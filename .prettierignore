@@ -7,3 +7,5 @@ package-lock.json
 AGENTS.md
 PROJECT_CONTEXT.md
 assets
+dist-static
+src/static-demo-data.json

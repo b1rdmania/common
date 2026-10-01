@@ -4,6 +4,8 @@
 
 Common is a volunteer sign-up app for one organisation or local network. Hosts post dated sessions. Volunteers request a place. Hosts accept or decline.
 
+**[Try the read-only demo](https://fern-mortar-2sza.here.now/)**. Switch between a volunteer and a host.
+
 The project is parked. The code works and is MIT licensed. If you run volunteers, fork it and use it.
 
 | Find something to do                                                                               | Review requests                                                                                    |
@@ -30,7 +32,18 @@ npm ci
 npm run demo
 ```
 
-To run it for real, see [docs/self-hosting.md](docs/self-hosting.md). It is one Node process with a SQLite file. A Dockerfile and a Fly.io example are included.
+### To run it for real
+
+You need someone who can deploy a Node app. You also need:
+
+1. Google OAuth credentials. Sign-in is Google only.
+2. A random `BETTER_AUTH_SECRET`.
+3. Your email in `HOST_EMAILS`. Without it, nobody can create an organisation.
+4. One server with a persistent disk. Docker and Fly.io configs are included.
+
+SMTP email is optional. See [docs/self-hosting.md](docs/self-hosting.md) for each step.
+
+`npm run build:static` builds the read-only demo as static files.
 
 Stack: React, Vite, Express, Better Auth, SQLite. See [docs/architecture.md](docs/architecture.md).
 

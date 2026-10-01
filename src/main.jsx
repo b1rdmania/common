@@ -1,3 +1,4 @@
+import './static-demo.js';
 import React, {
   useState,
   useEffect,
@@ -10,6 +11,7 @@ import React, {
 import { createRoot } from 'react-dom/client';
 import {
   BrowserRouter,
+  HashRouter,
   Routes,
   Route,
   Link,
@@ -55,6 +57,8 @@ import { neighbourScenes } from './illustrations';
 import { demoActivities, demoHosts } from './demo-content';
 
 const authClient = createAuthClient();
+const staticDemo = !!import.meta.env.VITE_STATIC_DEMO;
+const Router = staticDemo ? HashRouter : BrowserRouter;
 const Context = createContext(null);
 const useApp = () => useContext(Context);
 let timezone = 'Europe/London';
@@ -392,8 +396,8 @@ function Shell() {
       </a>
       {config.demo && (
         <div className="demo-banner">
-          <span>LOCAL DEMO</span> Fictional opportunities. Try it as a volunteer
-          or a host.
+          <span>{staticDemo ? 'READ-ONLY DEMO' : 'LOCAL DEMO'}</span> Fictional
+          opportunities. Try it as a volunteer or a host.
           <Link to="/signin">
             Switch role <ArrowUpRight size={13} />
           </Link>
@@ -1018,7 +1022,8 @@ function Detail() {
             >
               <Users size={17} /> Invite friends
             </button>
-            {s.status === 'published' &&
+            {!staticDemo &&
+              s.status === 'published' &&
               (application?.status === 'accepted' ||
                 me?.organisations.some((o) => o.id === s.organisation_id)) && (
                 <a
@@ -1104,14 +1109,18 @@ function SignIn() {
           </Button>
         ) : (
           <div className="notice">
-            Google sign-in hasn’t been connected on this installation yet.
+            {staticDemo
+              ? 'This demo has no real sign-in. Pick a demo account below.'
+              : 'Google sign-in hasn’t been connected on this installation yet.'}
             {!config.demo &&
               ' The site operator needs to add Google credentials.'}
           </div>
         )}
         {config.demo && (
           <div className="demo-accounts">
-            <span className="eyebrow">TRY THE LOCAL DEMO</span>
+            <span className="eyebrow">
+              {staticDemo ? 'TRY THE DEMO' : 'TRY THE LOCAL DEMO'}
+            </span>
             <button
               disabled={!!busy}
               className="demo-account"
@@ -2310,9 +2319,9 @@ function App() {
   if (!ready) return <Loading />;
   return (
     <Context.Provider value={{ config, me, refresh }}>
-      <BrowserRouter>
+      <Router>
         <Shell />
-      </BrowserRouter>
+      </Router>
     </Context.Provider>
   );
 }
