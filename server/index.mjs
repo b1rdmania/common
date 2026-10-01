@@ -39,8 +39,9 @@ const canCreateOrganisation = (user) =>
 const store = openStore(process.env.DATABASE_PATH || './data/common.sqlite', {
   emailEnabled,
 });
-const auth = betterAuth({
-  appName: process.env.APP_NAME || 'Common',
+const appName = process.env.APP_NAME || 'Common';
+const authOptions = {
+  appName,
   baseURL: origin,
   secret: process.env.BETTER_AUTH_SECRET,
   database: store.db,
@@ -55,9 +56,10 @@ const auth = betterAuth({
       }
     : {},
   rateLimit: { enabled: true, window: 60, max: 40 },
-});
-const migrations = await getMigrations(auth.options);
-await migrations.runMigrations();
+};
+// Create the auth tables before Better Auth checks the schema on start.
+await (await getMigrations(authOptions)).runMigrations();
+const auth = betterAuth(authOptions);
 if (demo) await seedDemo(store, auth);
 const app = express();
 app.disable('x-powered-by');
@@ -149,7 +151,7 @@ const notifyHosts = (s, subject, body) => {
 };
 app.get('/api/config', (req, res) =>
   res.json({
-    name: process.env.APP_NAME || 'Common',
+    name: appName,
     city: process.env.APP_CITY || 'East London',
     timezone: process.env.APP_TIMEZONE || 'Europe/London',
     demo,
@@ -250,7 +252,7 @@ app.post('/api/organisations', mustSignIn, (req, res) => {
   if (!canCreateOrganisation(req.user))
     throw new Problem(
       403,
-      'Host registration is by invitation during the pilot. Contact the site organiser to approve your sign-in email.',
+      'Host registration is by invitation. Contact the site organiser to approve your sign-in email.',
     );
   res.status(201).json({
     id: store.createOrganisation(
@@ -370,7 +372,7 @@ app.post('/api/host/organisations/:id/invites', mustSignIn, (req, res) => {
     url = `${origin}/join-team/${token}`;
   store.queueEmail(
     email,
-    'You have been invited to help host on Common',
+    `You have been invited to help host on ${appName}`,
     `Sign in with this email address to join the organisation team. This link expires in seven days.\n\n${url}`,
   );
   res.status(201).json({ url });
@@ -478,7 +480,7 @@ const server = app.listen(
   demo ? '127.0.0.1' : process.env.HOST || '127.0.0.1',
   () =>
     console.log(
-      `Common is ready at ${origin}${demo ? ' (fictional local demo)' : ''}`,
+      `${appName} is ready at ${origin}${demo ? ' (fictional local demo)' : ''}`,
     ),
 );
 for (const signal of ['SIGINT', 'SIGTERM'])
