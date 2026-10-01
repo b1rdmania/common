@@ -59,6 +59,6 @@ The app fits better as a tool for one organisation that already has volunteers.
 
 ## Status
 
-Not maintained. Real Google OAuth, SMTP delivery and the Fly.io config have not had a full end-to-end test. The Docker image is tested. Test them before you invite people. Issues and pull requests are welcome, but replies can be slow.
+Not maintained. Real Google OAuth, SMTP delivery and the Fly.io config have not had a full end-to-end test. Test them before you invite people. The Docker image is tested. Issues and pull requests are welcome, but replies can be slow.
 
 [MIT](LICENSE)
