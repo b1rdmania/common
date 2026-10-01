@@ -87,6 +87,10 @@ Set `APP_NAME` and `APP_CITY`. Colours are CSS variables at the top of `src/styl
 
 Real Google OAuth, external SMTP delivery and deployment behind a public HTTPS proxy have not had a full end-to-end test. Test them before you invite users.
 
+## Static read-only demo
+
+`npm run build:static` writes a static copy of the UI to `dist-static/`. It needs no server. It reads recorded data from `src/static-demo-data.json` and refuses all writes. To record new data, start `npm run demo`, then run `node scripts/capture-static-demo.mjs` in a second terminal.
+
 ## Reset the local demo
 
 Stop the app and remove only `data/demo.sqlite`, `data/demo.sqlite-wal` and `data/demo.sqlite-shm`, then run `npm run demo` again. These are fictional demo records; a normal installation uses a separate database.

@@ -43,8 +43,6 @@ You need someone who can deploy a Node app. You also need:
 
 SMTP email is optional. See [docs/self-hosting.md](docs/self-hosting.md) for each step.
 
-`npm run build:static` builds the read-only demo as static files.
-
 Stack: React, Vite, Express, Better Auth, SQLite. See [docs/architecture.md](docs/architecture.md).
 
 ## What we learned
@@ -61,6 +59,6 @@ The app fits better as a tool for one organisation that already has volunteers.
 
 ## Status
 
-Not maintained. Real Google OAuth, SMTP delivery and a public HTTPS deploy have not had a full end-to-end test. Test them before you invite people. Issues and pull requests are welcome, but replies can be slow.
+Not maintained. Real Google OAuth, SMTP delivery and the Fly.io config have not had a full end-to-end test. The Docker image is tested. Test them before you invite people. Issues and pull requests are welcome, but replies can be slow.
 
 [MIT](LICENSE)

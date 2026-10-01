@@ -3,13 +3,16 @@
 One repository, one server, one database:
 
 ```text
-src/                 React UI and CSS
-server/index.mjs     Express routes, Better Auth, SMTP worker
-server/store.mjs     SQLite schema and domain rules
-server/calendar.mjs Calendar export
-server/seed.mjs     Fictional local demo
-scripts/demo.mjs    Isolated demo launcher
-tests/              Domain and integration tests
+src/                             React UI and CSS
+src/static-demo.js               Read-only demo shim (build:static only)
+server/index.mjs                 Express routes, Better Auth, SMTP worker
+server/store.mjs                 SQLite schema and domain rules
+server/calendar.mjs              Calendar export
+server/seed.mjs                  Fictional local demo
+scripts/demo.mjs                 Isolated demo launcher
+scripts/capture-static-demo.mjs  Records demo data for build:static
+tests/                           Domain and integration tests
+Dockerfile, fly.example.toml     Container and Fly.io deploy
 ```
 
 React + Vite renders the interface. Express owns the API. Better Auth manages Google OAuth and cookie sessions. Better SQLite3 stores organisations, team memberships, opportunities, dated sessions, applications and invitation tokens. Nodemailer delivers optional transactional emails. Fonts ship with the app; there is no analytics script or external image service.
